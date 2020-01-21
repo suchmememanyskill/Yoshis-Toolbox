@@ -1,0 +1,14 @@
+
+build/
+
+*.elf
+
+*.nacp
+
+*.nro
+
+*.nso
+
+*.pfs0
+
+main_backup.c
