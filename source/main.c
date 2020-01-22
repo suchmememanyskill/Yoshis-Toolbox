@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include "sdl_helper.h"
 #include "menu.h"
+#include "payload.h"
 
 static UEvent g_Event;
 static UEvent g_ExitEvent;
@@ -67,6 +68,7 @@ menu_item menu2items[7] = {
 
 menu menu1 = {"Menu1", menu1items};
 menu menu2 = {"Menu2", menu2items};
+menu menu3 = {"Payload", NULL};
 
 int main(int argc, char *argv[]){
     Thread thread;
@@ -82,6 +84,11 @@ int main(int argc, char *argv[]){
     InitTopMenu();
     AddTopMenu(menu1);
     AddTopMenu(menu2);
+    AddTopMenu(menu3);
+
+    SetFolder("/payloads/.");
+    ReadFolder();
+    SetMenuPayload();
     
     if (R_SUCCEEDED(rc)){
         rc = threadStart(&thread);

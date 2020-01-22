@@ -20,7 +20,7 @@
 #define BUTTON_MINUS        0xE0F0
 
 typedef struct _menu_item {
-    char name[255];
+    char *name;
     short property;
 } menu_item;
 

@@ -119,6 +119,14 @@ int GetArrayAmount(int menu_entry){
     return i;
 }
 
+void ReloadMenu(int amount){
+    selection = 1;
+    offset = 0;
+
+    while (menu_objects[currentmenu].items[selection + offset - 1].property == 0 && selection + offset < amount)
+        selection++;
+}
+
 void MakeBasicMenu(){
     int ypos = 150, amount = 0;
     amount = GetArrayAmount(currentmenu);
@@ -166,16 +174,14 @@ void MakeBasicMenu(){
         if (kDown & KEY_L)
             if (ChangeTopMenu(false)){
                 amount = GetArrayAmount(currentmenu);
-                selection = 1;
-                offset = 0;
+                ReloadMenu(amount);
             }
                 
 
         if (kDown & KEY_R)
             if (ChangeTopMenu(true)){
-                 amount = GetArrayAmount(currentmenu);
-                selection = 1;
-                offset = 0;
+                amount = GetArrayAmount(currentmenu);
+                ReloadMenu(amount);
             }
                 
 
