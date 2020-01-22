@@ -58,7 +58,7 @@ void ClearScreenWithElements(){
 }
 
 menu_item GetCurrentElement(){
-    return menu_objects[currentmenu].items[selection - 1];
+    return menu_objects[currentmenu].items[selection + offset - 1];
 }
 
 int GetCurrentMenu(){
@@ -129,30 +129,55 @@ void MakeBasicMenu(){
         u64 kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
         ClearScreenWithElements();
 
-        if ((kDown & KEY_LSTICK_UP || kHeld & KEY_RSTICK_UP || kDown & KEY_DUP))
+        if ((kDown & KEY_LSTICK_UP || kHeld & KEY_RSTICK_UP || kDown & KEY_DUP) && selection + offset > 0){
             selection--;
-        if ((kDown & KEY_LSTICK_DOWN || kHeld & KEY_RSTICK_DOWN || kDown & KEY_DDOWN))
+            while (menu_objects[currentmenu].items[selection + offset - 1].property == 0 && selection + offset > 0)
+                selection--;
+        }
+            
+        if ((kDown & KEY_LSTICK_DOWN || kHeld & KEY_RSTICK_DOWN || kDown & KEY_DDOWN) && selection + offset < amount){
             selection++;
+            while (menu_objects[currentmenu].items[selection + offset - 1].property == 0 && selection + offset < amount)
+                selection++;
+        }
+            
+        if (menu_objects[currentmenu].items[selection + offset - 1].property == 0){
+            if (selection + offset == amount)
+                while (menu_objects[currentmenu].items[selection + offset - 1].property == 0)
+                    selection--;
+
+            if (selection + offset == 0)
+                while (menu_objects[currentmenu].items[selection + offset - 1].property == 0)
+                    selection++;
+        }
 
         if (selection + offset > amount)
             selection = amount - offset;
 
         else if (selection > MAX_ENTRIES)
-            selection = MAX_ENTRIES, offset++;
+            offset += selection - MAX_ENTRIES, selection = MAX_ENTRIES;
 
         if (selection < 1 && offset > 0)
-            selection = 1, offset--;
+            offset += selection - 1, selection = 1;
 
         else if (selection < 1 && offset <= 0)
             selection = 1;
 
         if (kDown & KEY_L)
-            if (ChangeTopMenu(false))
+            if (ChangeTopMenu(false)){
                 amount = GetArrayAmount(currentmenu);
+                selection = 1;
+                offset = 0;
+            }
+                
 
         if (kDown & KEY_R)
-            if (ChangeTopMenu(true))
-                amount = GetArrayAmount(currentmenu);
+            if (ChangeTopMenu(true)){
+                 amount = GetArrayAmount(currentmenu);
+                selection = 1;
+                offset = 0;
+            }
+                
 
         if (kDown & KEY_PLUS)
             break;
