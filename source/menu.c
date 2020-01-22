@@ -113,7 +113,7 @@ void DrawMenuEntry(menu_item item, int x, int y, bool highlighted){
 int GetArrayAmount(int menu_entry){
     int i = 0;
 
-    while (menu_objects[menu_entry].items[i].property != -1)
+    while (menu_objects[menu_entry].items[i].name != NULL)
         i++;
     
     return i;
@@ -130,6 +130,7 @@ void ReloadMenu(int amount){
 void MakeBasicMenu(){
     int ypos = 150, amount = 0;
     amount = GetArrayAmount(currentmenu);
+    ReloadMenu(amount);
 
     while (1){
         hidScanInput();
@@ -137,9 +138,9 @@ void MakeBasicMenu(){
         u64 kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
         ClearScreenWithElements();
 
-        if ((kDown & KEY_LSTICK_UP || kHeld & KEY_RSTICK_UP || kDown & KEY_DUP) && selection + offset > 0){
+        if ((kDown & KEY_LSTICK_UP || kHeld & KEY_RSTICK_UP || kDown & KEY_DUP) && selection + offset > 1){
             selection--;
-            while (menu_objects[currentmenu].items[selection + offset - 1].property == 0 && selection + offset > 0)
+            while (menu_objects[currentmenu].items[selection + offset - 1].property == 0 && selection + offset > 1)
                 selection--;
         }
             
@@ -154,7 +155,7 @@ void MakeBasicMenu(){
                 while (menu_objects[currentmenu].items[selection + offset - 1].property == 0)
                     selection--;
 
-            if (selection + offset == 0)
+            if (selection + offset <= 1)
                 while (menu_objects[currentmenu].items[selection + offset - 1].property == 0)
                     selection++;
         }

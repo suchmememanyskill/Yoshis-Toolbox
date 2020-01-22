@@ -101,13 +101,12 @@ void ClearFolderItems(){
     int i = 0;
 
     if (folderitems != NULL){
-        while (folderitems[i].property > 0){
-            if (folderitems[i].name != NULL){
-                free(folderitems[i].name);
-                folderitems[i].name = NULL;
-            }
-            i++;
+        while (folderitems[i].name != NULL){
+            free(folderitems[i].name);
+            folderitems[i].name = NULL;
         }
+        
+        i++;
         free(folderitems);
         folderitems = NULL;
     }

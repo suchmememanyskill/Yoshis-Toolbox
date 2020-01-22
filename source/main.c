@@ -48,11 +48,11 @@ int SignalThread(){
 }
 
 menu_item menu1items[5] = {
-    {"This", 1},
+    {"This", 0},
     {"Is", 1},
     {"A", 1},
-    {"Test", 1},
-    {"no", -1}
+    {"Test", 0},
+    {NULL, -1}
 };
 
 menu_item menu2items[7] = {
@@ -62,7 +62,7 @@ menu_item menu2items[7] = {
     {"Test", 1},
     {"Yeet", 1},
     {"Yote", 1},
-    {"no", -1}
+    {NULL, -1}
 };
 
 
