@@ -59,6 +59,7 @@ int ini_parse(const char* filename, ini_handler handler) {
             break;
 
         switch (c){
+            case '\r':
             case '\n':
                 break;
             case ';':
