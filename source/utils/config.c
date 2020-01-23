@@ -55,3 +55,11 @@ void SetPayloadFolder(char *in){
     payloadconfig.path = makestring(in);
     SetPayloadConfig();
 }
+
+void SetPayloadFav(char *in){
+    if (payloadconfig.fav != NULL)
+        free(payloadconfig.fav);
+    
+    payloadconfig.fav = makestring(in);
+    SetPayloadConfig();
+}

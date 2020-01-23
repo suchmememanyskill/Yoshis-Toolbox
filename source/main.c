@@ -30,8 +30,7 @@ void ThreadExec(void *arg){
                 case 0:;
                     switch (GetCurrentMenu()){
                         case MENU_PAYLOAD:;
-                            menu_item item = GetCurrentElement();
-                            MakeNotification(item.name, 200, COLOR_WHITE);
+                            HandlePayload();
                             break;
                         case MENU_OPTIONS:
                             HandleOptions();
@@ -56,7 +55,7 @@ int SignalThread(){
     }
 }
 
-menu temp = {"NULL", NULL};
+menu temp = {"NULL", NULL, 0};
 
 void MakeEmptyConfig(){
     FILE *fp;

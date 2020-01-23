@@ -2,4 +2,3 @@
 
 void Options_Init();
 void HandleOptions();
-void WriteConfig();

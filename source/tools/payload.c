@@ -9,6 +9,7 @@
 #include "../menu/menu.h"
 #include "../utils/utils.h"
 #include "../utils/config.h"
+#include <unistd.h>
 
 
 // ATMOSPHERE CODE -----------------------------------------------------------------
@@ -147,12 +148,12 @@ void ReadFolder(){
 
     while ((de = readdir(dr)) != NULL){
         if (strstr(de->d_name, ".bin") != NULL){
-            folderitems[i++] = MakeMenuItem(de->d_name, 1);
+            folderitems[i++] = MakeMenuItem(de->d_name, 2);
         }
     }
 
     if (i == 3){
-        folderitems[i] = MakeMenuItem("No payloads found!", 1);
+        folderitems[i] = MakeMenuItem("No payloads found!", 3);
         isValidFolder = false;
     }
     else
@@ -163,9 +164,8 @@ void ReadFolder(){
 }
 
 void SetMenuPayload(){
-    static menu payloadmenu = {"Payload", NULL};
-    payloadmenu.items = folderitems;
-    EditTopMenu(payloadmenu, MENU_PAYLOAD);
+    EditTopMenu((menu) {"Payload", folderitems, KEY_A}, MENU_PAYLOAD);
+    ReloadMenu();
 }
 
 menu_item tempitems[2] = {
@@ -174,6 +174,78 @@ menu_item tempitems[2] = {
 };
 
 void SetTempMenuPayload(){
-    static menu temppayloadmenu = {"Payload", tempitems};
-    EditTopMenu(temppayloadmenu, MENU_PAYLOAD);
+    EditTopMenu((menu) {"Payload", tempitems, 0}, MENU_PAYLOAD);
+    ReloadMenu();
+}
+
+bool inChoiceMenu = false;
+
+menu_item ChoiceMenuItems[6] = {
+    {"Would you like to reboot to:", 0},
+    {"PAYLOAD", 0},
+    {"Yes", 1},
+    {"No", 2},
+    {"Set as favorite payload", 3},
+    {NULL, -1}
+};
+
+void SetChoiceMenuPayload(){
+    EditTopMenu((menu) {"Payload", ChoiceMenuItems, KEY_A | KEY_B}, MENU_PAYLOAD);
+    ReloadMenu();
+}
+
+void HandlePayload(){
+    menu_item item;
+    char *temp;
+    static char *payloadname = NULL;
+
+    u64 getInput = GetControllerInput();
+
+    if (getInput & KEY_B)
+        item = (menu_item) {"back", 2};
+    else
+        item = GetCurrentElement();
+
+    if (inChoiceMenu){
+        switch (item.property){
+            case 1:;
+                temp = makestring(payloadconfig.path);
+                temp[strlen(temp) - 1] = '\0';
+                reboot(addstrings(temp, payloadname));
+                MakeNotification("Payload location invalid!", 200, COLOR_RED);
+                free(temp);
+                break;
+            case 2:;
+                inChoiceMenu = false;
+                ReadFolder();
+                break;
+            case 3:;
+                temp = makestring(payloadconfig.path);
+                temp[strlen(temp) - 1] = '\0';
+                SetPayloadFav(addstrings(temp, payloadname));
+                WriteConfig();
+                MakeNotification("Set payload as favorite!", 200, COLOR_WHITE);
+                free(temp);
+                break;
+        }
+    }
+    else switch (item.property){
+        case 1:;
+            reboot(payloadconfig.fav);
+            SetPayloadFav("");
+            WriteConfig();
+            ReadFolder();
+            MakeNotification("Payload location invalid!", 200, COLOR_RED);
+            break;
+        case 2:;
+            if (payloadname != NULL)
+                free(payloadname);
+            ChoiceMenuItems[1] = MakeMenuItem(item.name, 0);
+            payloadname = makestring(item.name);
+            inChoiceMenu = true;
+            SetChoiceMenuPayload();
+            break;
+            
+
+    }
 }

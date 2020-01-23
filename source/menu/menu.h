@@ -27,6 +27,7 @@ typedef struct _menu_item {
 typedef struct _menu {
     char name[50];
     menu_item *items;
+    u64 controller_mask;
 } menu;
 
 typedef struct _notification {
@@ -42,3 +43,6 @@ menu_item GetCurrentElement();
 void EditTopMenu(menu menu_edit, int pos);
 void AddTopMenu(menu menu_object);
 void InitTopMenu();
+int GetArrayAmount(int menu_entry);
+void ReloadMenu();
+u64 GetControllerInput();

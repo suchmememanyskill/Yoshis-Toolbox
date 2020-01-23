@@ -4,6 +4,7 @@
 #include <string.h>
 #include <switch.h>
 #include "../tools/payload.h"
+#include <time.h>
 
 extern int SignalThread();
 
@@ -115,6 +116,8 @@ void DrawMenuEntry(menu_item item, int x, int y, bool highlighted){
         DrawText(x, y, shortenstring(item.name), COLOR_WHITE, 1920);
 }
 
+int amount;
+
 int GetArrayAmount(int menu_entry){
     int i = 0;
 
@@ -124,22 +127,27 @@ int GetArrayAmount(int menu_entry){
     return i;
 }
 
-void ReloadMenu(int amount){
+void ReloadMenu(){
     selection = 1;
     offset = 0;
+    amount = GetArrayAmount(currentmenu);
 
     while (menu_objects[currentmenu].items[selection + offset - 1].property <= 0 && selection + offset < amount)
         selection++;
 }
 
+u64 kDown;
+u64 GetControllerInput(){
+    return kDown;
+}
+
 void MakeBasicMenu(){
-    int ypos = 150, amount = 0;
-    amount = GetArrayAmount(currentmenu);
-    ReloadMenu(amount);
+    int ypos = 150;
+    ReloadMenu();
 
     while (1){
         hidScanInput();
-        u64 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
+        kDown = hidKeysDown(CONTROLLER_P1_AUTO);
         u64 kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
         ClearScreenWithElements();
 
@@ -179,23 +187,27 @@ void MakeBasicMenu(){
 
         if (kDown & KEY_L)
             if (ChangeTopMenu(false)){
-                amount = GetArrayAmount(currentmenu);
-                ReloadMenu(amount);
+                ReloadMenu();
             }
                 
 
         if (kDown & KEY_R)
             if (ChangeTopMenu(true)){
-                amount = GetArrayAmount(currentmenu);
-                ReloadMenu(amount);
+                ReloadMenu();
             }
                 
         if (kDown & KEY_PLUS)
             break;
 
-        if (kDown & KEY_A)
+        if (kDown & menu_objects[currentmenu].controller_mask){
             SignalThread();
-        
+            svcSleepThread(50000);
+        }
+            
+
+        if (kDown & KEY_X)
+            amount = 5;
+            
         ypos = 150;
         int temp = 0;
         for (int i = 0; i < ((amount > MAX_ENTRIES) ? MAX_ENTRIES + temp: amount); i++){
@@ -206,7 +218,7 @@ void MakeBasicMenu(){
             else
                 temp++;
         }
-        
+
         DrawTopMenu();
         DrawNotification();
         RenderFrame();
