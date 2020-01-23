@@ -180,12 +180,13 @@ void SetTempMenuPayload(){
 
 bool inChoiceMenu = false;
 
-menu_item ChoiceMenuItems[6] = {
+menu_item ChoiceMenuItems[7] = {
     {"Would you like to reboot to:", 0},
     {"PAYLOAD", 0},
     {"Yes", 1},
     {"No", 2},
     {"Set as favorite payload", 3},
+    {"Set as atmosphere reboot payload", 4},
     {NULL, -1}
 };
 
@@ -226,6 +227,14 @@ void HandlePayload(){
                 WriteConfig();
                 MakeNotification("Set payload as favorite!", 200, COLOR_WHITE);
                 free(temp);
+                break;
+            case 4:;
+                temp = makestring(payloadconfig.path);
+                temp[strlen(temp) - 1] = '\0';
+                if (copy(addstrings(temp, payloadname), "/atmosphere/reboot_payload.bin"))
+                    MakeNotification("Copy failed!", 200, COLOR_RED);
+                else
+                    MakeNotification("Copy successful!", 200, COLOR_WHITE);
                 break;
         }
     }
