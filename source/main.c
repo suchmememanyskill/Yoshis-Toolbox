@@ -2,10 +2,14 @@
 #include <stdio.h>
 #include <switch.h>
 #include <dirent.h> 
+#include <unistd.h>
 #include <sys/stat.h>
-#include "sdl_helper.h"
-#include "menu.h"
-#include "payload.h"
+#include "menu/sdl_helper.h"
+#include "menu/menu.h"
+#include "tools/payload.h"
+#include "utils/config.h"
+#include "utils/utils.h"
+#include "tools/options.h"
 
 static UEvent g_Event;
 static UEvent g_ExitEvent;
@@ -24,10 +28,15 @@ void ThreadExec(void *arg){
         if (R_SUCCEEDED(rc)){
             switch (idx){
                 case 0:;
-                    menu_item item = GetCurrentElement();
-
-                    MakeNotification(item.name, 200, COLOR_WHITE);
-
+                    switch (GetCurrentMenu()){
+                        case MENU_PAYLOAD:;
+                            menu_item item = GetCurrentElement();
+                            MakeNotification(item.name, 200, COLOR_WHITE);
+                            break;
+                        case MENU_OPTIONS:
+                            HandleOptions();
+                            break;
+                    }
                     ueventClear(&g_Event);
                     break;
                 case 1:
@@ -47,28 +56,16 @@ int SignalThread(){
     }
 }
 
-menu_item menu1items[5] = {
-    {"This", 0},
-    {"Is", 1},
-    {"A", 1},
-    {"Test", 0},
-    {NULL, -1}
-};
+menu temp = {"NULL", NULL};
 
-menu_item menu2items[7] = {
-    {"This", 1},
-    {"Is", 0},
-    {"A", 1},
-    {"Test", 1},
-    {"Yeet", 1},
-    {"Yote", 1},
-    {NULL, -1}
-};
+void MakeEmptyConfig(){
+    FILE *fp;
 
+    fp = fopen(INILOC, "w+");
+    fprintf(fp, "[Payload]\nPath=/.\nFav=\n");
 
-menu menu1 = {"Menu1", menu1items};
-menu menu2 = {"Menu2", menu2items};
-menu menu3 = {"Payload", NULL};
+    fclose(fp);
+}
 
 int main(int argc, char *argv[]){
     Thread thread;
@@ -82,13 +79,14 @@ int main(int argc, char *argv[]){
     rc = threadCreate(&thread, ThreadExec, NULL, NULL, 0x10000, 0x2C, -2);
 
     InitTopMenu();
-    AddTopMenu(menu1);
-    AddTopMenu(menu2);
-    AddTopMenu(menu3);
+    AddTopMenu(temp);
+    AddTopMenu(temp);
 
-    SetFolder("/payloads/.");
-    ReadFolder();
-    SetMenuPayload();
+    if (access(INILOC, F_OK) == -1)
+        MakeEmptyConfig();
+
+    Payload_Init();
+    Options_Init();
     
     if (R_SUCCEEDED(rc)){
         rc = threadStart(&thread);

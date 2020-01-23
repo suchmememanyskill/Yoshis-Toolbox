@@ -43,7 +43,7 @@ APP_VERSION := 1.0.0
 
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	source
+SOURCES		:=	source/menu source/utils source/tools source 
 DATA		:=	data
 INCLUDES	:=	includes
 #ROMFS		:=	romfs

@@ -5,8 +5,9 @@
 #include <string.h>
 #include <sys/stat.h>
 #include "utils.h"
-#include "sdl_helper.h"
-#include "menu.h"
+#include "../menu/sdl_helper.h"
+#include "../menu/menu.h"
+#include "ini.h"
 
 int copy(const char* src, const char* dst){
     FILE* in = fopen(src, "rb");
@@ -88,13 +89,23 @@ int FolderAmount(char *path, char *filter){
             amount++;
 
     closedir(dr);
+
+    if (amount == 0)
+        amount = 1;
+
     return amount;
 }
 
 menu_item MakeMenuItem(char *text, int property){
     menu_item item;
     item.property = property;
-    item.name = malloc(strlen(text) + 1);
-    strcpy(item.name, text); 
+    item.name = makestring(text);
     return item;
+}
+
+char *makestring(const char *in){
+    char *ret;
+    ret = malloc(strlen(in) + 1);
+    strcpy(ret, in);
+    return ret;
 }

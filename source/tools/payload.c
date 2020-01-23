@@ -5,9 +5,10 @@
 #include <sys/stat.h>
 #include <string.h>
 #include "payload.h"
-#include "sdl_helper.h"
-#include "menu.h"
-#include "utils.h"
+#include "../menu/sdl_helper.h"
+#include "../menu/menu.h"
+#include "../utils/utils.h"
+#include "../utils/config.h"
 
 
 // ATMOSPHERE CODE -----------------------------------------------------------------
@@ -104,9 +105,8 @@ void ClearFolderItems(){
         while (folderitems[i].name != NULL){
             free(folderitems[i].name);
             folderitems[i].name = NULL;
+            i++;
         }
-        
-        i++;
         free(folderitems);
         folderitems = NULL;
     }
@@ -118,22 +118,32 @@ void CreateFolderItems(int amount){
     folderitems[amount] = (menu_item) {NULL, -1};   
 }
 
-char *folder;
-void SetFolder(char *in){
-    if (folder != NULL)
-        free(folder);
-    
-    folder = malloc(strlen(in) + 1);
-    strcpy(folder, in);
+payload_config payloadconfig;
+
+void SetPayloadConfig(){
+    payloadconfig = get_payload_config();
 }
 
+void Payload_Init(){
+    ReadPayloadConfig(INILOC);
+    payloadconfig = get_payload_config();
+    ReadFolder();
+}
+
+bool isValidFolder;
 void ReadFolder(){
-    int amount = FolderAmount(folder, ".bin");
-    CreateFolderItems(amount);
+    SetTempMenuPayload();
+
+    int amount = FolderAmount(payloadconfig.path, ".bin");
+    CreateFolderItems(amount + 3);
 
     struct dirent *de;
-    DIR *dr = opendir(folder);
-    int i = 0;
+    DIR *dr = opendir(payloadconfig.path);
+    int i = 3;
+
+    folderitems[0] = MakeMenuItem("-- Options --", (strlen(payloadconfig.fav) > 0) ? 0 : -1);
+    folderitems[1] = MakeMenuItem("Launch favorite payload", (strlen(payloadconfig.fav) > 0) ? 1 : -1);
+    folderitems[2] = MakeMenuItem("-- Payloads --", 0);
 
     while ((de = readdir(dr)) != NULL){
         if (strstr(de->d_name, ".bin") != NULL){
@@ -141,11 +151,29 @@ void ReadFolder(){
         }
     }
 
+    if (i == 3){
+        folderitems[i] = MakeMenuItem("No payloads found!", 1);
+        isValidFolder = false;
+    }
+    else
+        isValidFolder = true;
+
     closedir(dr);
+    SetMenuPayload();
 }
 
 void SetMenuPayload(){
     static menu payloadmenu = {"Payload", NULL};
     payloadmenu.items = folderitems;
     EditTopMenu(payloadmenu, MENU_PAYLOAD);
+}
+
+menu_item tempitems[2] = {
+    {"Loading...", 1},
+    {NULL, -1}
+};
+
+void SetTempMenuPayload(){
+    static menu temppayloadmenu = {"Payload", tempitems};
+    EditTopMenu(temppayloadmenu, MENU_PAYLOAD);
 }

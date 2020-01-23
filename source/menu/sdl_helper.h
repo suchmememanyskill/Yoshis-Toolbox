@@ -12,6 +12,7 @@
 #define COLOR_GREEN (SDL_Color){0, 255, 0, 255}
 #define COLOR_RED (SDL_Color){255, 0, 0, 255}
 #define COLOR_BLACK (SDL_Color){0, 0, 0, 255}
+#define COLOR_LIGHTGREY (SDL_Color){150, 150, 150, 255}
 
 void ClearScreen(SDL_Color color);
 void DrawOutline(int x, int y, int x2, int y2, int bordersize, SDL_Color color);

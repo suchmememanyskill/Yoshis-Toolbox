@@ -1,7 +1,9 @@
 #include "sdl_helper.h"
 #include "menu.h"
+#include "../utils/utils.h"
 #include <string.h>
 #include <switch.h>
+#include "../tools/payload.h"
 
 extern int SignalThread();
 
@@ -107,7 +109,10 @@ void DrawMenuEntry(menu_item item, int x, int y, bool highlighted){
         DrawBox(0, y - 5, 1919, 10 + h, COLOR_HIGHLIGHT);
     }
 
-    DrawText(x, y, shortenstring(item.name), COLOR_WHITE, 1920);
+    if (item.property == 0)
+        DrawText(x, y, shortenstring(item.name), COLOR_LIGHTGREY, 1920);
+    else if (item.property > 0)
+        DrawText(x, y, shortenstring(item.name), COLOR_WHITE, 1920);
 }
 
 int GetArrayAmount(int menu_entry){
@@ -123,7 +128,7 @@ void ReloadMenu(int amount){
     selection = 1;
     offset = 0;
 
-    while (menu_objects[currentmenu].items[selection + offset - 1].property == 0 && selection + offset < amount)
+    while (menu_objects[currentmenu].items[selection + offset - 1].property <= 0 && selection + offset < amount)
         selection++;
 }
 
@@ -140,23 +145,23 @@ void MakeBasicMenu(){
 
         if ((kDown & KEY_LSTICK_UP || kHeld & KEY_RSTICK_UP || kDown & KEY_DUP) && selection + offset > 1){
             selection--;
-            while (menu_objects[currentmenu].items[selection + offset - 1].property == 0 && selection + offset > 1)
+            while (menu_objects[currentmenu].items[selection + offset - 1].property <= 0 && selection + offset > 1)
                 selection--;
         }
             
         if ((kDown & KEY_LSTICK_DOWN || kHeld & KEY_RSTICK_DOWN || kDown & KEY_DDOWN) && selection + offset < amount){
             selection++;
-            while (menu_objects[currentmenu].items[selection + offset - 1].property == 0 && selection + offset < amount)
+            while (menu_objects[currentmenu].items[selection + offset - 1].property <= 0 && selection + offset < amount)
                 selection++;
         }
             
-        if (menu_objects[currentmenu].items[selection + offset - 1].property == 0){
+        if (menu_objects[currentmenu].items[selection + offset - 1].property <= 0){
             if (selection + offset == amount)
-                while (menu_objects[currentmenu].items[selection + offset - 1].property == 0)
+                while (menu_objects[currentmenu].items[selection + offset - 1].property <= 0)
                     selection--;
 
             if (selection + offset <= 1)
-                while (menu_objects[currentmenu].items[selection + offset - 1].property == 0)
+                while (menu_objects[currentmenu].items[selection + offset - 1].property <= 0)
                     selection++;
         }
 
@@ -185,7 +190,6 @@ void MakeBasicMenu(){
                 ReloadMenu(amount);
             }
                 
-
         if (kDown & KEY_PLUS)
             break;
 
@@ -193,9 +197,14 @@ void MakeBasicMenu(){
             SignalThread();
         
         ypos = 150;
-        for (int i = 0; i < ((amount > MAX_ENTRIES) ? MAX_ENTRIES : amount); i++){
+        int temp = 0;
+        for (int i = 0; i < ((amount > MAX_ENTRIES) ? MAX_ENTRIES + temp: amount); i++){
             DrawMenuEntry(menu_objects[currentmenu].items[i + offset], 90, ypos, (i == selection - 1));
-            ypos += 50;
+
+            if (menu_objects[currentmenu].items[i + offset].property >= 0)
+                ypos += 50;
+            else
+                temp++;
         }
         
         DrawTopMenu();
