@@ -10,6 +10,8 @@
 #include "utils/config.h"
 #include "utils/utils.h"
 #include "tools/options.h"
+#include "utils/config.h"
+#include "tools/ams_config.h"
 
 static UEvent g_Event;
 static UEvent g_ExitEvent;
@@ -80,12 +82,15 @@ int main(int argc, char *argv[]){
     InitTopMenu();
     AddTopMenu(temp);
     AddTopMenu(temp);
+    AddTopMenu(temp);
 
     if (access(INILOC, F_OK) == -1)
         MakeEmptyConfig();
 
+    ReadConfig(INILOC);
     Payload_Init();
     Options_Init();
+    InitAmsConfigMenu();
     
     if (R_SUCCEEDED(rc)){
         rc = threadStart(&thread);

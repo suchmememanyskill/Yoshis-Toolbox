@@ -7,6 +7,7 @@
 #include "config.h"
 #include "utils.h"
 #include "ini.h"
+#include "listhelper.h"
 #include "../tools/payload.h"
 
 payload_config payloadconfig;
@@ -28,6 +29,37 @@ int payload_config_parse(const char* section, const char* name, const char* valu
     return 1;
 }
 
+ini_list *atmosphere_config_list[2];
+ini_list *temp_ini = NULL;
+char lastsection[255];
+
+void get_atmosphere_config_list(ini_list **config1, ini_list **config2){
+    *config1 = atmosphere_config_list[0];
+    *config2 = atmosphere_config_list[1];
+}
+
+int atmosphere_config_parse(const char* section, const char* name, const char* value){
+    
+    if (temp_ini == NULL){
+        temp_ini = inilistcreate(section);
+    }
+    else if (!strcmp(lastsection, section)){
+        inilistadd(section, temp_ini);
+    }
+
+    dictlistaddtolastini(name, value, temp_ini);
+
+    /*
+    if (temp_ini->firstlistitem == NULL)
+        temp_ini->firstlistitem = dictlistcreate(name, value);
+    else
+        dictlistadd(name, value, temp_ini->firstlistitem);
+    */
+
+    strcpy(lastsection, section);
+    return 0;
+}
+
 void WriteConfig(){
     FILE *fp;
 
@@ -46,6 +78,22 @@ void WriteConfig(){
 
 int ReadPayloadConfig(char *path){
     return ini_parse(path, payload_config_parse);
+}
+
+int ReadConfig(char *owninipath){
+    ini_parse(owninipath, payload_config_parse);
+
+    ini_parse("/atmosphere/config/system_settings.ini", atmosphere_config_parse);
+    atmosphere_config_list[0] = temp_ini;
+    /*
+    char yeet[5];
+    dict *temp_dict = temp_ini->firstlistitem;
+    sprintf(yeet, "%d", dictgetlistamount(temp_dict));
+    MakeNotification(yeet, 300, COLOR_WHITE);
+    */
+    temp_ini = NULL;
+    ini_parse("/atmosphere/config/override_config.ini", atmosphere_config_parse);
+    atmosphere_config_list[1] = temp_ini;
 }
 
 void SetPayloadFolder(char *in){

@@ -15,5 +15,6 @@ char *makestring(const char *in);
 
 enum menuorder {
     MENU_PAYLOAD = 0,
-    MENU_OPTIONS
+    MENU_OPTIONS,
+    MENU_AMS_CONFIG
 };

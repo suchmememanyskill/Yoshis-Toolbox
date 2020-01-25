@@ -126,7 +126,6 @@ void SetPayloadConfig(){
 }
 
 void Payload_Init(){
-    ReadPayloadConfig(INILOC);
     payloadconfig = get_payload_config();
     ReadFolder();
 }

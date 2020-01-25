@@ -52,7 +52,8 @@ void RemoveBrackets(char *in){
 int ini_parse(const char* filename, ini_handler handler) {
     FILE *file;
     char temp[255], c;
-    file = fopen(filename, "r");
+    if ((file = fopen(filename, "r")) == NULL)
+        return -1;
 
     while (1){
         if ((c = fgetc(file)) == 255)
