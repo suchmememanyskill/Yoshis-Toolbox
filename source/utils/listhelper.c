@@ -68,7 +68,6 @@ int dictgetlistamount(dict *list){
     int i = 0;
     dict *temp;
 
-    temp = list;
     for (temp = list; temp != NULL; temp = temp->next)
         i++;
 
@@ -88,4 +87,28 @@ int inigetdictlistamount(ini_list *list){
     }
 
     return i;
+}
+
+int inigetlistamount(ini_list *list){
+    int i = 0;
+    ini_list *temp_list;
+
+    for (temp_list = list; temp_list != NULL; temp_list = temp_list->next)
+        i++;
+
+    return i;
+}
+
+dict *Search(char *searchstring, ini_list *list){
+    ini_list *temp_list;
+    dict *temp_dict;
+
+    for (temp_list = list; temp_list != NULL; temp_list = temp_list->next){
+        for (temp_dict = temp_list->firstlistitem; temp_dict != NULL; temp_dict = temp_dict->next){
+            if (!strcmp(searchstring, temp_dict->key))
+                return temp_dict;
+        }
+    }
+
+    return NULL;
 }

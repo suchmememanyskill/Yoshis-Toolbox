@@ -30,22 +30,42 @@ int payload_config_parse(const char* section, const char* name, const char* valu
 }
 
 ini_list *atmosphere_config_list[2];
+ini_list *atmosphere_config_template[2];
 ini_list *temp_ini = NULL;
-char lastsection[255];
 
 void get_atmosphere_config_list(ini_list **config1, ini_list **config2){
     *config1 = atmosphere_config_list[0];
     *config2 = atmosphere_config_list[1];
 }
 
+void get_atmosphere_template_list(ini_list **config1, ini_list **config2){
+    *config1 = atmosphere_config_template[0];
+    *config2 = atmosphere_config_template[1];
+}
+
 int atmosphere_config_parse(const char* section, const char* name, const char* value){
-    
+    ini_list *temp_list;
+
     if (temp_ini == NULL){
         temp_ini = inilistcreate(section);
     }
+    /*
     else if (!strcmp(lastsection, section)){
         inilistadd(section, temp_ini);
+        test++;
     }
+    */
+
+   for (temp_list = temp_ini; temp_list != NULL; temp_list = temp_list->next){
+        if (!strcmp(temp_list->name, section)){
+            break;
+        }
+   }
+
+   if (temp_list == NULL){
+       inilistadd(section, temp_ini);
+   }
+    
 
     dictlistaddtolastini(name, value, temp_ini);
 
@@ -56,7 +76,6 @@ int atmosphere_config_parse(const char* section, const char* name, const char* v
         dictlistadd(name, value, temp_ini->firstlistitem);
     */
 
-    strcpy(lastsection, section);
     return 0;
 }
 
@@ -85,15 +104,22 @@ int ReadConfig(char *owninipath){
 
     ini_parse("/atmosphere/config/system_settings.ini", atmosphere_config_parse);
     atmosphere_config_list[0] = temp_ini;
-    /*
-    char yeet[5];
-    dict *temp_dict = temp_ini->firstlistitem;
-    sprintf(yeet, "%d", dictgetlistamount(temp_dict));
-    MakeNotification(yeet, 300, COLOR_WHITE);
-    */
+
     temp_ini = NULL;
     ini_parse("/atmosphere/config/override_config.ini", atmosphere_config_parse);
     atmosphere_config_list[1] = temp_ini;
+
+    romfsInit();
+
+    temp_ini = NULL;
+    ini_parse("romfs:/system_settings.ini", atmosphere_config_parse);
+    atmosphere_config_template[0] = temp_ini;
+
+    temp_ini = NULL;
+    ini_parse("romfs:/override_config.ini", atmosphere_config_parse);
+    atmosphere_config_template[1] = temp_ini;
+
+    romfsExit();
 }
 
 void SetPayloadFolder(char *in){

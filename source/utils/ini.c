@@ -23,7 +23,7 @@ void SplitString(char *in, char split){
     pos = 0, i++;
 
     while (i < length){
-        if (in[i] == ' '){
+        if (in[i] == ' ' || in[i] == '\n' || in[i] == '\r'){
             i++;
             continue;
         }
@@ -31,10 +31,6 @@ void SplitString(char *in, char split){
         value[pos] = in[i];
         i++, pos++;
     }
-
-    if (pos > 0)
-        if (value[pos - 1] == '\n')
-            value[pos - 1] = '\0';
 
     value[pos] = '\0';
 }

@@ -103,6 +103,9 @@ char *shortenstring(char *string){
 }
 
 void DrawMenuEntry(menu_item item, int x, int y, bool highlighted){
+    if (!strcmp(item.name, ""))
+        return;
+
     if (highlighted){
         int w, h;
         GetTextSize(item.name, &w, &h);
@@ -190,7 +193,6 @@ void MakeBasicMenu(){
                 ReloadMenu();
             }
                 
-
         if (kDown & KEY_R)
             if (ChangeTopMenu(true)){
                 ReloadMenu();
@@ -203,10 +205,6 @@ void MakeBasicMenu(){
             SignalThread();
             svcSleepThread(50000);
         }
-            
-
-        if (kDown & KEY_X)
-            amount = 5;
             
         ypos = 150;
         int temp = 0;

@@ -19,3 +19,5 @@ void dictlistadd(char *key, char *value, dict *list);
 void dictlistaddtolastini(char *key, char *value, ini_list *list);
 int dictgetlistamount(dict *list);
 int inigetdictlistamount(ini_list *list);
+int inigetlistamount(ini_list *list);
+dict *Search(char *searchstring, ini_list *list);
